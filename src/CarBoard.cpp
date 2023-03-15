@@ -35,9 +35,16 @@ void CarBoard::init() {
 
 	strip.Begin();
 	setColor(0, 0, 0);
+
+	_batt_adc = analogRead(0);
 }
 
 void CarBoard::loop() {
+	unsigned long now = millis();
+	if (now - _batt_adc_time > 200) {
+		_batt_adc_time = now;
+		_batt_adc = analogRead(0);
+	}
 }
 
 std::array<uint8_t, 6> CarBoard::mac() const {
@@ -70,4 +77,12 @@ void CarBoard::setHeadlights(uint16_t i_pwr) {
 void CarBoard::setColor(uint8_t r, uint8_t g, uint8_t b) {
 	strip.SetPixelColor(0, RgbColor(r, g, b));
 	strip.Show();
+}
+
+uint16_t CarBoard::batteryLevel_ADC() const {
+	return _batt_adc;
+}
+
+uint16_t CarBoard::batteryLevel_gauge() const {
+	return 0;
 }

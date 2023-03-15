@@ -12,6 +12,8 @@ class CarBoard {
 	private:
 		Servo _throttleServo;
 		Servo _steeringServo;
+		uint16_t _batt_adc = 0;
+		unsigned long _batt_adc_time = 0;
 
 	public:
 		void init();
@@ -36,6 +38,9 @@ class CarBoard {
 		void setSteering(int16_t i_angle);
 		void setHeadlights(uint16_t i_pwr);
 		void setColor(uint8_t r, uint8_t g, uint8_t b);
+
+		uint16_t batteryLevel_ADC() const;
+		uint16_t batteryLevel_gauge() const;
 };
 
 #endif

@@ -30,6 +30,7 @@ void CarCtrl::loop() {
 	}
 
 	_sim.update();
+	_car.loop();
 }
 
 void CarCtrlBase::shutdown() {

@@ -103,7 +103,13 @@ class CarCtrlRearlight : virtual public CarCtrlBase {
 		color_t displayed_color() const;
 };
 
-class CarCtrl : public CarCtrlConfig, public CarCtrlPilot, public CarCtrlHeadlights, public CarCtrlRearlight {
+class CarCtrlLL : virtual public CarCtrlBase {
+	public:
+		uint16_t batteryLevel_ADC() const { return _car.batteryLevel_ADC(); }
+		uint16_t batteryLevel_gauge() const { return _car.batteryLevel_gauge(); }
+};
+
+class CarCtrl : public CarCtrlConfig, public CarCtrlPilot, public CarCtrlHeadlights, public CarCtrlRearlight, public CarCtrlLL {
 	public:
 		void init();
 		void loop();

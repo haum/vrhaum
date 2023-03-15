@@ -67,6 +67,16 @@ void StatusCast::loop() {
 			msg[len++] = displayed_color[2];
 			break;
 		}
+		case STATUS_BATTERY: {
+			msg[len++] = STATUS_BATTERY;
+			auto batt_adc = _car.batteryLevel_ADC();
+			msg[len++] = (batt_adc >>  0) & 0xFF;
+			msg[len++] = (batt_adc >>  8) & 0xFF;
+			auto batt_gauge = _car.batteryLevel_gauge();
+			msg[len++] = (batt_gauge >>  0) & 0xFF;
+			msg[len++] = (batt_gauge >>  8) & 0xFF;
+			break;
+		}
 	}
 
 	IPAddress multicast{239, 255, 0, 1};
