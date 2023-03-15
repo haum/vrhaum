@@ -51,13 +51,13 @@ Stream & CarBoard::debug_serial() const {
 }
 
 void CarBoard::setSteering(int16_t i_angle) {
-	const int16_t value = map(i_angle, -32768, 32767, 1000, 2000);
+	const int16_t value = map(i_angle, -32768, 32767, 2000, 1000);
 	_steeringServo.writeMicroseconds(value);
 }
 
 void CarBoard::setThrottle(int16_t i_speed) {
-	const int16_t value = (i_speed > 0) ? map(i_speed, 0, 32767, 1576, 2000) :
-	                      (i_speed < 0) ? map(i_speed, -32768, 0, 1000, 1423) :
+	const int16_t value = (i_speed > 0) ? map(i_speed, 0, 32767, 1423, 1000) :
+	                      (i_speed < 0) ? map(i_speed, -32768, 0, 2000, 1576) :
 	                      1500;
 	_throttleServo.writeMicroseconds(value);
 }
