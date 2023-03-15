@@ -7,9 +7,11 @@
 class CarCtrlBase {
 	protected:
 		CarBoard _car;
+		bool _shutdown = false;
 
 	public:
 		Stream & log() const { return _car.debug_serial(); }
+		void shutdown();
 };
 
 class CarCtrlConfig : virtual public CarCtrlBase {
@@ -34,6 +36,7 @@ class CarCtrlConfig : virtual public CarCtrlBase {
 	public:
 		void setConfigName(String name);
 		const char * configName();
+		String hostname();
 		void setConfigAdminPass(std::array<uint8_t, 6> pass);
 		const std::array<uint8_t, 6> configAdminPass() const;
 		void setConfigSteeringTrim(uint16_t value);

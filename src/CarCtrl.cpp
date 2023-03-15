@@ -34,7 +34,16 @@ void CarCtrl::loop() {
 	_sim.update();
 }
 
+void CarCtrlBase::shutdown() {
+	_shutdown = true;
+	_car.setThrottle(0);
+	_car.setSteering(0);
+	_car.setHeadlights(0);
+	_car.setColor(0, 0, 0);
+}
+
 void CarCtrl::start_engine(bool on) {
+	if (_shutdown) return;
 	start_pilot(on);
 	setHeadlights(on ? 40000 : 0);
 }
@@ -63,6 +72,8 @@ void CarCtrlConfig::setConfigName(String name) {
 
 const char * CarCtrlConfig::configName() { return _config.name; }
 
+String CarCtrlConfig::hostname() { return String("CarNode-") + _config.name; }
+
 void CarCtrlConfig::setConfigAdminPass(std::array<uint8_t, 6> pass) { _config.adminpass = pass; }
 
 const std::array<uint8_t, 6> CarCtrlConfig::configAdminPass() const { return _config.adminpass; }
@@ -76,10 +87,12 @@ void CarCtrlConfig::saveConfig() {
 }
 
 void CarCtrlPilot::start_pilot(bool on) {
+	if (_shutdown) return;
 	_pilot_started = on;
 }
 
 void CarCtrlPilot::pilot(int16_t i_speed, int16_t i_angle) {
+	if (_shutdown) return;
 	if (_invert_throttle) i_speed *= -1;
 	if (_invert_steering) i_angle *= -1;
 	if (i_speed < 0) i_speed = std::max(_speed_max_neg, i_speed);
@@ -106,11 +119,13 @@ void CarCtrlPilot::limitSpeed(int16_t pos, int16_t neg) {
 }
 
 void CarCtrlHeadlights::setHeadlights(uint16_t i_pwr) {
+	if (_shutdown) return;
 	_headlights_pwr = i_pwr;
 	if (!_blink) setHeadlightsPower(i_pwr);
 }
 
 void CarCtrlHeadlights::setHeadlightsPower(uint16_t i_pwr) {
+	if (_shutdown) return;
 	if (i_pwr == _headlights_pwr_set) return;
 	_headlights_pwr_set = i_pwr;
 
@@ -125,6 +140,7 @@ uint16_t CarCtrlHeadlights::headlightsPower() const {
 }
 
 void CarCtrlRearlight::setDisplayedColor(const color_t c) {
+	if (_shutdown) return;
 	_color_set = c;
 	_car.setColor(c[0], c[1], c[2]);
 }

@@ -8,7 +8,7 @@ void WifiLink::init(const char* ssid, const char* pass) {
 	_car.setBlink(true);
 	WiFi.begin(ssid, pass);
 
-	String hostname = String("CarNode-") + _car.configName();
+	String hostname = _car.hostname();
 	_car.log().print("Hostname: ");
 	_car.log().println(hostname);
 	MDNS.begin(hostname);
