@@ -1,6 +1,7 @@
 #include <CarBoard.hpp>
 
 #include <ESP8266WiFi.h>
+#include <NeoPixelBus.h>
 
 namespace {
 	constexpr const int PIN_DEBUG_RX = 3;
@@ -10,6 +11,7 @@ namespace {
 	constexpr const int PIN_HEADLIGHTS = 12;
 
 	SoftwareSerial debugSerial(PIN_DEBUG_RX, PIN_DEBUG_TX);
+	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> strip(/* length */ 1);
 };
 
 void CarBoard::init() {
@@ -30,6 +32,9 @@ void CarBoard::init() {
 
 	debugSerial.begin(76800);
 	debugSerial.println("CarInSitu");
+
+	strip.Begin();
+	setColor(0, 0, 0);
 }
 
 void CarBoard::loop() {
@@ -63,4 +68,6 @@ void CarBoard::setHeadlights(uint16_t i_pwr) {
 }
 
 void CarBoard::setColor(uint8_t r, uint8_t g, uint8_t b) {
+	strip.SetPixelColor(0, RgbColor(r, g, b));
+	strip.Show();
 }
