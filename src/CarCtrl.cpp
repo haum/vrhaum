@@ -21,15 +21,13 @@ void CarCtrl::loop() {
 		setHeadlightsPower(headlightsPower());
 	}
 
-	const uint16_t rear_time = now % 1000;
-	color_t dyncolor = speed() < 0  ? color_t{255, 255, 255} :
-	                   speed_down() ? color_t{255, 0, 0} :
-	                   speed() == 0 ? color_t{255, 0, 0} :
-	                                  color_t{0, 0, 0};
-	if (rear_time < 100) setDisplayedColor(color());
-	else if (rear_time < 200) setDisplayedColor(dyncolor);
-	else if (rear_time < 300) setDisplayedColor(color());
-	else setDisplayedColor(dyncolor);
+	if ((now & 0xFF) < 128) {
+		if (speed() < 0) setDisplayedColor({64, 64, 64});
+		else if (speed_down()) setDisplayedColor({64, 0, 0});
+		else setDisplayedColor({0, 0, 0});
+	} else {
+		setDisplayedColor(color());
+	}
 
 	_sim.update();
 }

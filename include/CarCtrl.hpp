@@ -91,7 +91,7 @@ class CarCtrlRearlight : virtual public CarCtrlBase {
 		typedef std::array<uint8_t, 3> color_t;
 
 	private:
-		color_t _color = {255, 128, 128};
+		color_t _color = {255, 0, 255};
 		color_t _color_set = {0, 0, 0};
 
 	protected:
