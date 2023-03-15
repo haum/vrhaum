@@ -143,8 +143,8 @@ class JoystickPilot:
         if j.button(BTN_SELECT): self._allow_boost = 1
         if j.button(BTN_START): self._allow_boost = 0
 
-        thr = j.axis(ABS_Z, False)
-        thr_max = 0.25 + 0.75 * j.axis(ABS_RZ, False) * self._allow_boost
+        thr = j.axis(ABS_RZ, False)
+        thr_max = 0.25 + 0.75 * j.axis(ABS_Z, False) * self._allow_boost
         rev = 1 - 2 * (j.button(BTN_A) or j.button(BTN_B) or j.button(BTN_X) or j.button(BTN_Y))
         steer_raw = j.axis(ABS_X)
         speed = thr * thr_max * rev
