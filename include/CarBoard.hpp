@@ -12,8 +12,13 @@ class CarBoard {
 	private:
 		Servo _throttleServo;
 		Servo _steeringServo;
+
 		uint16_t _batt_adc = 0;
 		unsigned long _batt_adc_time = 0;
+
+		std::array<int16_t, 3> _imu_xl;
+		std::array<int16_t, 3> _imu_g;
+		unsigned long _imu_sample_time = 0;
 
 	public:
 		void init();
@@ -41,6 +46,9 @@ class CarBoard {
 
 		uint16_t batteryLevel_ADC() const;
 		uint16_t batteryLevel_gauge() const;
+
+		std::array<int16_t, 3> imuAccelerometerData() const { return _imu_xl; }
+		std::array<int16_t, 3> imuGyroscopeData() const { return _imu_g; }
 };
 
 #endif

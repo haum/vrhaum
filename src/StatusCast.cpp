@@ -77,6 +77,24 @@ void StatusCast::loop() {
 			msg[len++] = (batt_gauge >>  8) & 0xFF;
 			break;
 		}
+		case STATUS_IMU: {
+			msg[len++] = STATUS_IMU;
+			auto imu_xl = _car.imu_accelerometerData();
+			msg[len++] = (imu_xl[0] >> 0) & 0xFF;
+			msg[len++] = (imu_xl[0] >> 8) & 0xFF;
+			msg[len++] = (imu_xl[1] >> 0) & 0xFF;
+			msg[len++] = (imu_xl[1] >> 8) & 0xFF;
+			msg[len++] = (imu_xl[2] >> 0) & 0xFF;
+			msg[len++] = (imu_xl[2] >> 8) & 0xFF;
+			auto imu_g = _car.imu_gyroscopeData();
+			msg[len++] = (imu_g[0] >> 0) & 0xFF;
+			msg[len++] = (imu_g[0] >> 8) & 0xFF;
+			msg[len++] = (imu_g[1] >> 0) & 0xFF;
+			msg[len++] = (imu_g[1] >> 8) & 0xFF;
+			msg[len++] = (imu_g[2] >> 0) & 0xFF;
+			msg[len++] = (imu_g[2] >> 8) & 0xFF;
+			break;
+		}
 	}
 
 	IPAddress multicast{239, 255, 0, 1};

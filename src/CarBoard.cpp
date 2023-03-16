@@ -1,4 +1,5 @@
 #include <CarBoard.hpp>
+#include <ImuLSM6DS3.hpp>
 
 #include <ESP8266WiFi.h>
 #include <NeoPixelBus.h>
@@ -12,6 +13,7 @@ namespace {
 
 	SoftwareSerial debugSerial(PIN_DEBUG_RX, PIN_DEBUG_TX);
 	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> strip(/* length */ 1);
+	ImuLSM6DS3 imu(Wire);
 };
 
 void CarBoard::init() {
@@ -37,6 +39,9 @@ void CarBoard::init() {
 	setColor(0, 0, 0);
 
 	_batt_adc = analogRead(0);
+
+	Wire.begin();
+	imu.init();
 }
 
 void CarBoard::loop() {
@@ -44,6 +49,16 @@ void CarBoard::loop() {
 	if (now - _batt_adc_time > 200) {
 		_batt_adc_time = now;
 		_batt_adc = analogRead(0);
+	}
+	if (now - _imu_sample_time >= 10) {
+		_imu_sample_time = now;
+		auto imu2car_coord = [](auto vec) {
+			std::swap(vec[0], vec[1]);
+			vec[0] *= -1;
+			return vec;
+		};
+		if (imu.accelerometerDataReady()) _imu_xl = imu2car_coord(imu.readAccelerometer());
+		if (imu.gyroscopeDataReady()) _imu_g = imu2car_coord(imu.readGyroscope());
 	}
 }
 

@@ -14,6 +14,7 @@ class StatusCast {
 			STATUS_HEADLIGHTS,
 			STATUS_COLOR,
 			STATUS_BATTERY,
+			STATUS_IMU,
 		} status_t;
 
 		std::array<status_t, 20> _exports = {
@@ -23,6 +24,7 @@ class StatusCast {
 			STATUS_HEADLIGHTS,
 			STATUS_COLOR,
 			STATUS_BATTERY,
+			STATUS_IMU,
 		};
 
 		CarCtrl & _car;

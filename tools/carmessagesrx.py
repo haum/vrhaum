@@ -30,6 +30,7 @@ class CarMulticastDecoder:
             0x04: ['H', 'headlights'],
             0x05: ['BBBBBB', 'car_color_r', 'car_color_g', 'car_color_b', 'led_color_r', 'led_color_g', 'led_color_b'],
             0x06: ['HH', 'batt_adc', 'batt_gauge'],
+            0x07: ['hhhhhh', 'imu_a_x', 'imu_a_y', 'imu_a_z', 'imu_g_x', 'imu_g_y', 'imu_g_z'],
         }
 
     def decode(self, packet):
