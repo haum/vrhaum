@@ -38,21 +38,21 @@ void StatusCast::loop() {
 			msg[len++] = STATUS_SIMULATION;
 			auto & sim = _car.simulation();
 			int16_t x = sim.x();
-			msg[len++] = (x >>  0) & 0xFF;
-			msg[len++] = (x >>  8) & 0xFF;
+			msg[len++] = (x >> 0) & 0xFF;
+			msg[len++] = (x >> 8) & 0xFF;
 			int16_t y = sim.y();
-			msg[len++] = (y >>  0) & 0xFF;
-			msg[len++] = (y >>  8) & 0xFF;
+			msg[len++] = (y >> 0) & 0xFF;
+			msg[len++] = (y >> 8) & 0xFF;
 			int16_t theta = sim.theta();
-			msg[len++] = (theta >>  0) & 0xFF;
-			msg[len++] = (theta >>  8) & 0xFF;
+			msg[len++] = (theta >> 0) & 0xFF;
+			msg[len++] = (theta >> 8) & 0xFF;
 			break;
 		}
 		case STATUS_HEADLIGHTS: {
 			msg[len++] = STATUS_HEADLIGHTS;
 			uint16_t hl = _car.headlightsPower();
-			msg[len++] = (hl >>  0) & 0xFF;
-			msg[len++] = (hl >>  8) & 0xFF;
+			msg[len++] = (hl >> 0) & 0xFF;
+			msg[len++] = (hl >> 8) & 0xFF;
 			break;
 		}
 		case STATUS_COLOR: {
@@ -70,11 +70,11 @@ void StatusCast::loop() {
 		case STATUS_BATTERY: {
 			msg[len++] = STATUS_BATTERY;
 			auto batt_adc = _car.batteryLevel_ADC();
-			msg[len++] = (batt_adc >>  0) & 0xFF;
-			msg[len++] = (batt_adc >>  8) & 0xFF;
+			msg[len++] = (batt_adc >> 0) & 0xFF;
+			msg[len++] = (batt_adc >> 8) & 0xFF;
 			auto batt_gauge = _car.batteryLevel_gauge();
-			msg[len++] = (batt_gauge >>  0) & 0xFF;
-			msg[len++] = (batt_gauge >>  8) & 0xFF;
+			msg[len++] = (batt_gauge >> 0) & 0xFF;
+			msg[len++] = (batt_gauge >> 8) & 0xFF;
 			break;
 		}
 		case STATUS_IMU: {
