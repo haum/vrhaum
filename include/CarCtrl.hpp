@@ -11,7 +11,6 @@ class CarCtrlBase {
 
 	public:
 		Stream & log() const { return _car.debug_serial(); }
-		void shutdown();
 };
 
 class CarCtrlConfig : virtual public CarCtrlBase {
@@ -63,6 +62,7 @@ class CarCtrlPilot : virtual public CarCtrlBase {
 		void start_pilot(bool on);
 		void pilot(int16_t i_speed, int16_t i_angle);
 		int16_t speed() { return _speed; }
+		int16_t angle() { return _angle; }
 		bool speed_down() { return _speed_down; }
 		bool pilot_started() { return _pilot_started; }
 		void invertSteering(bool on) { _invert_steering = on; }
@@ -118,6 +118,7 @@ class CarCtrl : public CarCtrlConfig, public CarCtrlPilot, public CarCtrlHeadlig
 		void loop();
 
 		void start_engine(bool on);
+		void shutdown();
 };
 
 #endif

@@ -20,7 +20,7 @@ void StatusCast::loop() {
 	msg[len++] = 'S';
 
 	const constexpr std::array<status_t, 4> exportsA = { STATUS_RSSI, STATUS_IR, STATUS_SIMULATION, STATUS_HEADLIGHTS };
-	const constexpr std::array<status_t, 4> exportsB = { STATUS_COLOR, STATUS_BATTERY, STATUS_IMU };
+	const constexpr std::array<status_t, 4> exportsB = { STATUS_COLOR, STATUS_BATTERY, STATUS_IMU, STATUS_PILOT };
 	const auto & exports = _last_msg_id ? exportsA : exportsB;
 	_last_msg_id ^= 1;
 
@@ -98,6 +98,18 @@ void StatusCast::loop() {
 			msg[len++] = (imu_g[1] >> 8) & 0xFF;
 			msg[len++] = (imu_g[2] >> 0) & 0xFF;
 			msg[len++] = (imu_g[2] >> 8) & 0xFF;
+			break;
+		}
+		case STATUS_PILOT: {
+			msg[len++] = STATUS_PILOT;
+			auto throtlle = _car.speed();
+			msg[len++] = (throtlle >> 0) & 0xFF;
+			msg[len++] = (throtlle >> 8) & 0xFF;
+			auto steering = _car.angle();
+			msg[len++] = (steering >> 0) & 0xFF;
+			msg[len++] = (steering >> 8) & 0xFF;
+			auto started = _car.pilot_started();
+			msg[len++] = started;
 			break;
 		}
 	}

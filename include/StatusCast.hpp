@@ -15,6 +15,7 @@ class StatusCast {
 			STATUS_COLOR,
 			STATUS_BATTERY,
 			STATUS_IMU,
+			STATUS_PILOT,
 		} status_t;
 
 		CarCtrl & _car;

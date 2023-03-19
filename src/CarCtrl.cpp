@@ -34,12 +34,13 @@ void CarCtrl::loop() {
 	_car.loop();
 }
 
-void CarCtrlBase::shutdown() {
-	_shutdown = true;
-	_car.setThrottle(0);
-	_car.setSteering(0);
+void CarCtrl::shutdown() {
+	_shutdown = false;
+	start_pilot(false);
+	pilot(0, 0);
 	_car.setHeadlights(0);
 	_car.setColor(0, 0, 0);
+	_shutdown = true;
 }
 
 void CarCtrl::start_engine(bool on) {
@@ -92,12 +93,11 @@ void CarCtrlPilot::start_pilot(bool on) {
 }
 
 void CarCtrlPilot::pilot(int16_t i_speed, int16_t i_angle) {
-	if (_shutdown) return;
 	if (_invert_throttle) i_speed *= -1;
 	if (_invert_steering) i_angle *= -1;
 	if (i_speed < 0) i_speed = std::max(_speed_max_neg, i_speed);
 	if (i_speed > 0) i_speed = std::min(_speed_max_pos, i_speed);
-	if (!_pilot_started) {
+	if (!_pilot_started || _shutdown) {
 		i_speed = 0;
 		i_angle = 0;
 	}
@@ -106,6 +106,7 @@ void CarCtrlPilot::pilot(int16_t i_speed, int16_t i_angle) {
 	bool update_angle = (i_angle != _angle);
 	_speed_down = (abs(i_speed) < abs(_speed));
 	_speed = i_speed;
+	_angle = i_angle;
 
 	if (update_speed) _car.setThrottle(i_speed);
 	if (update_angle) _car.setSteering(i_angle);
