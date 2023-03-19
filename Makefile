@@ -7,14 +7,10 @@ upload_serial:
 	pio run -t upload
 
 upload_ota:
-	@if [ "${OTA_TARGET}" == "" ]; then echo "No OTA_TARGET environmnt variable"; /bin/false; else echo Upload to ${OTA_TARGET}; fi
-	PLATFORMIO_UPLOAD_FLAGS=--auth=CarInSituOTA pio run -t upload --upload-port ${OTA_TARGET}.local
+	@./upload_ota.sh
 
 upload_ota_all:
-	for car in $(avahi-browse -t _arduino._tcp | grep CarNode | awk -F' ' '{ print $4 }')
-	do
-		PLATFORMIO_UPLOAD_FLAGS=--auth=CarInSituOTA pio run --target upload --upload-port ${car}.local
-	done
+	@./upload_ota.sh all
 
 clean:
 	pio run -t clean
