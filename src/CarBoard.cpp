@@ -9,7 +9,7 @@ namespace {
 	constexpr const int PIN_DEBUG_TX = 1;
 	constexpr const int PIN_THROTTLE = 14;
 	constexpr const int PIN_STEERING = 0;
-	constexpr const int PIN_HEADLIGHTS = 12;
+	constexpr const int PIN_HEADLIGHTS = 16;
 
 	SoftwareSerial debugSerial(PIN_DEBUG_RX, PIN_DEBUG_TX);
 	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> strip(/* length */ 1);
