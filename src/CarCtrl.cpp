@@ -24,6 +24,7 @@ void CarCtrl::loop() {
 	if ((now & 0xFF) < 128) {
 		if (speed() < 0) setDisplayedColor({64, 64, 64});
 		else if (speed_down()) setDisplayedColor({64, 0, 0});
+		else if (speed() == 0) setDisplayedColor(color());
 		else setDisplayedColor({0, 0, 0});
 	} else {
 		setDisplayedColor(color());
