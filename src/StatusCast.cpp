@@ -7,7 +7,7 @@ void StatusCast::init() {
 
 void StatusCast::loop() {
 	unsigned long now = millis();
-	if (now - _last_msg < 50) return;
+	if (now - _last_msg < 25) return;
 	_last_msg = now;
 
 	if (!WiFi.isConnected()) return;
@@ -19,7 +19,12 @@ void StatusCast::loop() {
 	msg[len++] = 'I';
 	msg[len++] = 'S';
 
-	for (auto s : _exports) switch (s) {
+	const constexpr std::array<status_t, 4> exportsA = { STATUS_RSSI, STATUS_IR, STATUS_SIMULATION, STATUS_HEADLIGHTS };
+	const constexpr std::array<status_t, 4> exportsB = { STATUS_COLOR, STATUS_BATTERY, STATUS_IMU };
+	const auto & exports = _last_msg_id ? exportsA : exportsB;
+	_last_msg_id ^= 1;
+
+	for (auto s : exports) switch (s) {
 		case STATUS_NO_REPORT:
 			break; // Do nothing
 		case STATUS_RSSI: {
@@ -97,7 +102,7 @@ void StatusCast::loop() {
 		}
 	}
 
-	IPAddress multicast{239, 255, 0, 1};
+	const IPAddress multicast{239, 255, 0, 1};
 	_udp.beginPacketMulticast(multicast, 4211, WiFi.localIP());
 	_udp.write(msg.data(), len);
 	_udp.endPacket();

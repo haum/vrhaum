@@ -17,24 +17,16 @@ class StatusCast {
 			STATUS_IMU,
 		} status_t;
 
-		std::array<status_t, 20> _exports = {
-			STATUS_RSSI,
-			STATUS_IR,
-			STATUS_SIMULATION,
-			STATUS_HEADLIGHTS,
-			STATUS_COLOR,
-			STATUS_BATTERY,
-			STATUS_IMU,
-		};
-
 		CarCtrl & _car;
 		WiFiUDP _udp;
 		unsigned long _last_msg = 0;
+		uint8_t _last_msg_id = 0;
 
 	public:
 		StatusCast(CarCtrl & car) : _car(car) {}
 		void init();
 		void loop();
+		void send();
 };
 
 #endif
