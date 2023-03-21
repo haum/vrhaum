@@ -20,7 +20,7 @@ if __name__ == '__main__':
     car_ip = car_info['ip']
 
     import pyglet
-    window = pyglet.window.Window(1280, 200, 'CarInSitu - Cockpit ' + car_info['name'])
+    window = pyglet.window.Window(1280, 162, 'CarInSitu - Cockpit ' + car_info['name'])
 
     pyglet.resource.path = ['./cockpit_overlay']
     pyglet.resource.reindex()
