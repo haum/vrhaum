@@ -56,8 +56,15 @@ class CarMulticastDecoder:
 
 if __name__ == '__main__':
     from select import select
+    import sys
     receiver = CarMulticastReceiver()
     decoder = CarMulticastDecoder()
+    filters = sys.argv[1:]
+    def filter_ok(m):
+        if len(filters) == 0: return True
+        for f in filters:
+            if f in m: return True
+        return False
     try:
         while True:
             rlist, _, _ = select([receiver], [], [])
@@ -65,6 +72,7 @@ if __name__ == '__main__':
                 packet, sender = receiver.recv()
                 msgs = decoder.decode(packet)
                 for m in msgs:
-                    print(sender[0] + ': ' + str(m))
+                    if filter_ok(m):
+                        print(sender[0] + ': ' + str(m))
     except KeyboardInterrupt:
         pass
