@@ -20,6 +20,9 @@ class CarBoard {
 		std::array<int16_t, 3> _imu_g;
 		unsigned long _imu_sample_time = 0;
 
+		uint8_t _ir_value;
+		unsigned long _ir_time = 0;
+
 	public:
 		void init();
 		void loop();
@@ -49,6 +52,8 @@ class CarBoard {
 
 		std::array<int16_t, 3> imuAccelerometerData() const { return _imu_xl; }
 		std::array<int16_t, 3> imuGyroscopeData() const { return _imu_g; }
+
+		uint8_t ir_value() const { return _ir_value; }
 };
 
 #endif

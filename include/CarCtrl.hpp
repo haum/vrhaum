@@ -110,6 +110,7 @@ class CarCtrlLL : virtual public CarCtrlBase {
 
 		std::array<int16_t, 3> imu_accelerometerData() const { return _car.imuAccelerometerData(); }
 		std::array<int16_t, 3> imu_gyroscopeData() const { return _car.imuGyroscopeData(); }
+		uint8_t ir_value() const { return _car.ir_value(); }
 };
 
 class CarCtrl : public CarCtrlConfig, public CarCtrlPilot, public CarCtrlHeadlights, public CarCtrlRearlight, public CarCtrlLL {

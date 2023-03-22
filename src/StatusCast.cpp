@@ -37,6 +37,9 @@ void StatusCast::loop() {
 			break;
 		}
 		case STATUS_IR: {
+			msg[len++] = STATUS_IR;
+			const uint8_t ir = _car.ir_value();
+			msg[len++] = ir;
 			break;
 		}
 		case STATUS_SIMULATION: {

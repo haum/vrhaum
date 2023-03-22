@@ -3,6 +3,7 @@
 
 #include <ESP8266WiFi.h>
 #include <NeoPixelBus.h>
+#include <IRrecv.h>
 
 namespace {
 	constexpr const int PIN_DEBUG_RX = 3;
@@ -10,10 +11,13 @@ namespace {
 	constexpr const int PIN_THROTTLE = 14;
 	constexpr const int PIN_STEERING = 0;
 	constexpr const int PIN_HEADLIGHTS = 16;
+	constexpr const int PIN_IR = 12;
 
 	SoftwareSerial debugSerial(PIN_DEBUG_RX, PIN_DEBUG_TX);
 	NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1800KbpsMethod> strip(/* length */ 1);
 	ImuLSM6DS3 imu(Wire);
+	IRrecv ir_recv(PIN_IR);
+	decode_results ir_result;
 };
 
 void CarBoard::init() {
@@ -42,6 +46,7 @@ void CarBoard::init() {
 
 	Wire.begin();
 	imu.init();
+	ir_recv.enableIRIn();
 }
 
 void CarBoard::loop() {
@@ -60,6 +65,17 @@ void CarBoard::loop() {
 		if (imu.accelerometerDataReady()) _imu_xl = imu2car_coord(imu.readAccelerometer());
 		if (imu.gyroscopeDataReady()) _imu_g = imu2car_coord(imu.readGyroscope());
 	}
+	if (ir_recv.decode(&ir_result)) {
+		if (ir_result.decode_type == RC6 && ir_result.bits == 12) {
+			uint16_t value = ir_result.value;
+			if ((value & 0xf00) == 0xa00) {
+				_ir_value = value;
+				_ir_time = now;
+			}
+		}
+		ir_recv.resume();
+	}
+	if (now - _ir_time >= 200) _ir_value = 0;
 }
 
 std::array<uint8_t, 6> CarBoard::mac() const {
