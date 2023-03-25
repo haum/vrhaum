@@ -32,6 +32,9 @@ if __name__ == '__main__':
     img_steering = pyglet.resource.image("steering.png")
     img_steering.anchor_x = img_steering.width//2
     img_steering.anchor_y = 98
+    img_steering_color = pyglet.resource.image("steering_color.png")
+    img_steering_color.anchor_x = img_steering_color.width//2
+    img_steering_color.anchor_y = 25
     img_throttle_mask = pyglet.resource.image("throttle_mask.png")
     img_throttle_mask.anchor_x = 145/2
     img_throttle_mask.anchor_y = 145/2
@@ -42,6 +45,7 @@ if __name__ == '__main__':
     board = pyglet.sprite.Sprite(img=img_board, x=0, y=0, batch=batch2D)
     name_txt = pyglet.text.Label(car_info['name'][8:], x=window.width//2, y=80, font_size=25, color=(210, 210, 210, 255), anchor_x='center', batch=batch2D)
     steering = pyglet.sprite.Sprite(img=img_steering, x=window.width//2, y=14, batch=batch2D, group=grp1)
+    steering_color = pyglet.sprite.Sprite(img=img_steering_color, x=window.width//2, y=14, batch=batch2D, group=grp1)
     rssi_bar = pyglet.shapes.Rectangle(x=20, y=12, width=80, height=8, color=(0x00, 0x88, 0xAA), batch=batch2D)
     batt_bar = pyglet.shapes.Rectangle(x=1180, y=12, width=80, height=8, color=(0x00, 0x88, 0xAA), batch=batch2D)
     batt_txt = pyglet.text.Label('--', x=1170, y=12, font_size=20, color=(30, 30, 30, 255), anchor_x='right', batch=batch2D)
@@ -82,6 +86,7 @@ if __name__ == '__main__':
     def set_angle(v):
         a = 30*v/32768
         steering.rotation = a
+        steering_color.rotation = a
 
     def set_throttle(v):
         p = v / 32768
@@ -102,6 +107,9 @@ if __name__ == '__main__':
         trans = Mat4.from_translation(Vec3(0, 0, -10))
         diode.matrix = rot_x @ rot_y @ trans
 
+    def set_color(r, g, b):
+        steering_color.color = (r, g, b)
+
     def handle_msgs(dt):
         packet, sender = receiver.recv()
         if sender[0] == car_ip:
@@ -116,6 +124,8 @@ if __name__ == '__main__':
                     set_rssi(m['RSSI'])
                 if 'imu_a_x' in m:
                     set_imu(m)
+                if 'car_color_r' in m:
+                    set_color(m['car_color_r'], m['car_color_g'], m['car_color_b'])
 
     pyglet.clock.schedule_interval(handle_msgs, 0.005)
     pyglet.app.run()
