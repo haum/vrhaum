@@ -3,14 +3,17 @@
 
 #include <CarBoard.hpp>
 #include <Simulation.hpp>
+#include <ESP8266WiFi.h>
 
 class CarCtrlBase {
 	protected:
 		CarBoard _car;
+		WiFiServer _log_server{23};
+		WiFiClient _log_client;
 		bool _shutdown = false;
 
 	public:
-		Stream & log() const { return _car.debug_serial(); }
+		Stream & log();
 };
 
 class CarCtrlConfig : virtual public CarCtrlBase {

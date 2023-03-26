@@ -1,8 +1,14 @@
 #include <CarCtrl.hpp>
 
+Stream & CarCtrlBase::log() {
+	if (_log_client.connected()) return _log_client;
+	return _car.debug_serial();
+}
+
 void CarCtrl::init() {
 	_car.init();
 	_sim.init();
+	_log_server.begin();
 
 	Config readconfig = _car.eeprom_load<Config>();
 	if (!strcmp("CarNode", readconfig.header) && readconfig.version == 1)
@@ -28,6 +34,18 @@ void CarCtrl::loop() {
 		else setDisplayedColor({0, 0, 0});
 	} else {
 		setDisplayedColor(color());
+	}
+
+	WiFiClient client = _log_server.accept();
+	if (client) {
+		if (_log_client.connected()) {
+			client.println("Sorry, only one client allowed.");
+			client.stop();
+		} else {
+			_log_client = client;
+			_log_client.println("CarNode debug TCP");
+			_log_client.println("=================");
+		}
 	}
 
 	_sim.update();
