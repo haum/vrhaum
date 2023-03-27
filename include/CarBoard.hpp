@@ -43,6 +43,7 @@ class CarBoard {
 		template<typename T>
 		void eeprom_save(const T & data) {
 			EEPROM.put(0, data);
+			EEPROM.commit();
 		}
 
 		Stream & debug_serial() const;
