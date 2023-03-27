@@ -157,10 +157,6 @@ void CarCtrlHeadlights::setHeadlightsPower(uint16_t i_pwr) {
 	if (_shutdown) return;
 	if (i_pwr == _headlights_pwr_set) return;
 	_headlights_pwr_set = i_pwr;
-
-	log().print("HL: ");
-	log().println(i_pwr);
-
 	_car.setHeadlights(i_pwr);
 }
 
