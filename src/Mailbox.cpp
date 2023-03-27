@@ -72,6 +72,11 @@ int16_t Mailbox::msg_arg_i16() {
 	return msb << 8 | *(_packet_head++);
 }
 
+uint16_t Mailbox::msg_arg_u16() {
+	const uint16_t msb = *(_packet_head++);
+	return msb << 8 | *(_packet_head++);
+}
+
 template<typename T> void Mailbox::msg_arg_copy(uint8_t nb, T it) {
 	std::copy(_packet_head, _packet_head+nb, it);
 }
@@ -118,9 +123,12 @@ void Mailbox::on_msg_change_name() {
 	_car.setConfigName(String(name));
 }
 
-void Mailbox::on_msg_change_steering_trim() {
-	const int16_t value = msg_arg_i16();
-	_car.setConfigSteeringTrim(value);
+void Mailbox::on_msg_change_trims() {
+	const int16_t stering_trim = msg_arg_i16();
+	_car.setConfigSteeringTrim(stering_trim);
+	const uint16_t fw = msg_arg_u16();
+	const uint16_t bw = msg_arg_u16();
+	_car.setConfigThrottleStart(fw, bw);
 }
 
 void Mailbox::on_msg_limit_speed() {

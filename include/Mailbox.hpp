@@ -31,6 +31,7 @@ class Mailbox {
 		bool msg_arg_bool();
 		uint8_t msg_arg_u8();
 		int16_t msg_arg_i16();
+		uint16_t msg_arg_u16();
 		template<typename T> void msg_arg_copy(uint8_t nb, T it);
 
 		void readUdp();
@@ -45,7 +46,7 @@ class Mailbox {
 		void on_msg_change_pass_lvl2();
 		void on_msg_change_pass_lvl3();
 		void on_msg_change_name();
-		void on_msg_change_steering_trim();
+		void on_msg_change_trims();
 
 		void on_msg_limit_speed();
 		void on_msg_invert_steering();
@@ -62,7 +63,7 @@ class Mailbox {
 			handler_info{0x22, 6, 2, &Mailbox::on_msg_change_pass_lvl2},
 			handler_info{0x23, 6, 3, &Mailbox::on_msg_change_pass_lvl3},
 			handler_info{0x24, 17, 3, &Mailbox::on_msg_change_name},
-			handler_info{0x25, 2, 3, &Mailbox::on_msg_change_steering_trim},
+			handler_info{0x25, 6, 3, &Mailbox::on_msg_change_trims},
 
 			handler_info{0x30, 4, 2, &Mailbox::on_msg_limit_speed},
 			handler_info{0x31, 1, 2, &Mailbox::on_msg_invert_steering},

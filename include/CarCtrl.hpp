@@ -23,7 +23,9 @@ class CarCtrlConfig : virtual public CarCtrlBase {
 			uint8_t version = 1;
 			char name[17] = "";
 			std::array<uint8_t, 6> adminpass {0, 0, 0, 0, 0, 0};
-			uint16_t steeringTrim = 0;
+			int16_t steeringTrim = 0;
+			uint16_t throttle_start_fw = 0;
+			uint16_t throttle_start_bw = 0;
 
 			Config & operator=(const Config &) = default;
 		};
@@ -41,8 +43,11 @@ class CarCtrlConfig : virtual public CarCtrlBase {
 		String hostname();
 		void setConfigAdminPass(std::array<uint8_t, 6> pass);
 		const std::array<uint8_t, 6> configAdminPass() const;
-		void setConfigSteeringTrim(uint16_t value);
-		const uint16_t configSteeringTrim() const;
+		void setConfigSteeringTrim(int16_t value);
+		const int16_t configSteeringTrim() const;
+		void setConfigThrottleStart(uint16_t fw, uint16_t bw);
+		const uint16_t configThrottleStartFw() const;
+		const uint16_t configThrottleStartBw() const;
 		void saveConfig();
 };
 

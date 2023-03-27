@@ -23,6 +23,11 @@ class CarBoard {
 		uint8_t _ir_value;
 		unsigned long _ir_time = 0;
 
+		uint16_t _steering_left = 2000;
+		uint16_t _steering_right = 1000;
+		uint16_t _throttle_start_fw = 0;
+		uint16_t _throttle_start_bw = 0;
+
 	public:
 		void init();
 		void loop();
@@ -46,6 +51,9 @@ class CarBoard {
 		void setSteering(int16_t i_angle);
 		void setHeadlights(uint16_t i_pwr);
 		void setColor(uint8_t r, uint8_t g, uint8_t b);
+
+		void setSteeringTrim(int16_t v);
+		void setThrottleStart(uint16_t fw, uint16_t bw);
 
 		uint16_t batteryLevel_ADC() const;
 		uint16_t batteryLevel_gauge() const;

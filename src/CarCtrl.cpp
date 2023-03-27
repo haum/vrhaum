@@ -26,7 +26,11 @@ void CarCtrl::init() {
 	else
 		useDefaultConfig();
 
+	_car.setSteeringTrim(configSteeringTrim());
+	_car.setThrottleStart(configThrottleStartFw(), configThrottleStartBw());
+
 	setHeadlights(0);
+	pilot(0, 0);
 }
 
 void CarCtrl::loop() {
@@ -107,9 +111,25 @@ void CarCtrlConfig::setConfigAdminPass(std::array<uint8_t, 6> pass) { _config.ad
 
 const std::array<uint8_t, 6> CarCtrlConfig::configAdminPass() const { return _config.adminpass; }
 
-void CarCtrlConfig::setConfigSteeringTrim(uint16_t value) { _config.steeringTrim = value; }
+void CarCtrlConfig::setConfigSteeringTrim(int16_t value) {
+	value = std::max(static_cast<int16_t>(-450), std::min(value, static_cast<int16_t>(450)));
+	_config.steeringTrim = value;
+	_car.setSteeringTrim(value);
+}
 
-const uint16_t CarCtrlConfig::configSteeringTrim() const { return std::min(_config.steeringTrim, static_cast<uint16_t>(450)); }
+const int16_t CarCtrlConfig::configSteeringTrim() const { return _config.steeringTrim; }
+
+void CarCtrlConfig::setConfigThrottleStart(uint16_t fw, uint16_t bw) {
+	fw = std::min(fw, static_cast<uint16_t>(450));
+	bw = std::min(bw, static_cast<uint16_t>(450));
+	_config.throttle_start_fw = fw;
+	_config.throttle_start_bw = bw;
+	_car.setThrottleStart(fw, bw);
+}
+
+const uint16_t CarCtrlConfig::configThrottleStartFw() const { return _config.throttle_start_fw; }
+
+const uint16_t CarCtrlConfig::configThrottleStartBw() const { return _config.throttle_start_bw; }
 
 void CarCtrlConfig::saveConfig() {
 	_car.eeprom_save(_config);

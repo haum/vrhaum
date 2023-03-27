@@ -56,8 +56,8 @@ class CarMessageForge:
     def cmd_change_name(self, name):
         return b'\x24' + (name+b'\0'*17)[:17]
 
-    def cmd_change_steering_trim(self, trim):
-        return struct.pack('!Bh', 0x25, trim)
+    def cmd_change_trims(self, steering_trim, start_fw, start_bw):
+        return struct.pack('!BhHH', 0x25, steering_trim, start_fw, start_bw)
 
     def cmd_limit_speed(self, pos, neg):
         return struct.pack('!Bhh', 0x30, pos, neg)

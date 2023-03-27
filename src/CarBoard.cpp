@@ -89,13 +89,13 @@ Stream & CarBoard::debug_serial() const {
 }
 
 void CarBoard::setSteering(int16_t i_angle) {
-	const int16_t value = map(i_angle, -32768, 32767, 2000, 1000);
+	const int16_t value = map(i_angle, -32768, 32767, _steering_left, _steering_right);
 	_steeringServo.writeMicroseconds(value);
 }
 
 void CarBoard::setThrottle(int16_t i_speed) {
-	const int16_t value = (i_speed > 0) ? map(i_speed, 0, 32767, 1423, 1000) :
-	                      (i_speed < 0) ? map(i_speed, -32768, 0, 2000, 1576) :
+	const int16_t value = (i_speed > 0) ? map(i_speed, 0, 32767, 1500-_throttle_start_fw, 1000) :
+	                      (i_speed < 0) ? map(i_speed, -32768, 0, 2000, 1500+_throttle_start_bw) :
 	                      1500;
 	_throttleServo.writeMicroseconds(value);
 }
@@ -108,6 +108,17 @@ void CarBoard::setHeadlights(uint16_t i_pwr) {
 void CarBoard::setColor(uint8_t r, uint8_t g, uint8_t b) {
 	strip.SetPixelColor(0, RgbColor(r, g, b));
 	strip.Show();
+}
+
+void CarBoard::setSteeringTrim(int16_t v) {
+	const int16_t trim = std::max(static_cast<int16_t>(-450), std::min(v, static_cast<int16_t>(450)));
+	_steering_left = 2000 + (trim < 0 ? trim : 0);
+	_steering_right = 1000 + (trim > 0 ? trim : 0);
+}
+
+void CarBoard::setThrottleStart(uint16_t fw, uint16_t bw) {
+	_throttle_start_fw = std::min(fw, static_cast<uint16_t>(450));
+	_throttle_start_bw = std::min(bw, static_cast<uint16_t>(450));
 }
 
 uint16_t CarBoard::batteryLevel_ADC() const {
