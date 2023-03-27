@@ -7,6 +7,7 @@ void Mailbox::init() {
 
 void Mailbox::loop() {
 	if (_udp.parsePacket() > 0) readUdp();
+	if (_tcp_link.available() > 0) readTcp();
 
 	unsigned long pilot_idle = millis() - _pilot_alive;
 	if (pilot_idle >= 200 && _alive_protect_step < 1) {
@@ -23,6 +24,15 @@ void Mailbox::readUdp() {
 	packet_t packet;
 	int len = _udp.read(packet.data(), packet.size());
 	if (len <= 0) return;
+	_cur_sender = _udp.remoteIP();
+	processPacket(packet, len);
+}
+
+void Mailbox::readTcp() {
+	packet_t packet;
+	int len = _tcp_link.read(packet.data(), packet.size());
+	if (len <= 0) return;
+	_cur_sender = _tcp_link.remoteIP();
 	processPacket(packet, len);
 }
 
@@ -79,6 +89,12 @@ uint16_t Mailbox::msg_arg_u16() {
 
 template<typename T> void Mailbox::msg_arg_copy(uint8_t nb, T it) {
 	std::copy(_packet_head, _packet_head+nb, it);
+}
+
+void Mailbox::on_msg_open_tcp_link() {
+	const uint16_t port = msg_arg_u16();
+	if (_tcp_link.connected()) _tcp_link.stop();
+	_tcp_link.connect(_cur_sender, port);
 }
 
 void Mailbox::on_msg_engine_on() {

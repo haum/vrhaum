@@ -32,6 +32,9 @@ class CarMessageUdpTx:
             self.sock.sendto(self.cis_lvl_passwd + msg, self.dest)
 
 class CarMessageForge:
+    def cmd_open_tcp_link(self, port=4212):
+        return struct.pack('!BH', 0x01, port)
+
     def cmd_engine_on(self, on=True):
         return struct.pack('!BB', 0x10, 1 if on else 0)
 

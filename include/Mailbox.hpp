@@ -17,6 +17,7 @@ class Mailbox {
 
 		CarCtrl & _car;
 		WiFiUDP _udp;
+		WiFiClient _tcp_link;
 
 		unsigned long _pilot_alive = 0;
 		uint8_t _alive_protect_step = 0;
@@ -28,6 +29,7 @@ class Mailbox {
 		};
 
 		packet_t::iterator _packet_head;
+		IPAddress _cur_sender;
 		bool msg_arg_bool();
 		uint8_t msg_arg_u8();
 		int16_t msg_arg_i16();
@@ -35,7 +37,10 @@ class Mailbox {
 		template<typename T> void msg_arg_copy(uint8_t nb, T it);
 
 		void readUdp();
+		void readTcp();
 		void processPacket(packet_t packet, uint8_t len);
+
+		void on_msg_open_tcp_link();
 
 		void on_msg_engine_on();
 		void on_msg_pilot();
@@ -54,6 +59,8 @@ class Mailbox {
 		void on_msg_set_color();
 
 		static constexpr const std::array handlers {
+			handler_info{0x01, 2, 2, &Mailbox::on_msg_open_tcp_link},
+
 			handler_info{0x10, 1, 1, &Mailbox::on_msg_engine_on},
 			handler_info{0x11, 4, 1, &Mailbox::on_msg_pilot},
 			handler_info{0x12, 2, 1, &Mailbox::on_msg_headlights},
