@@ -3,14 +3,10 @@
 import socket
 import struct
 
-class CarMessageUdpTx:
-    def __init__(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.dest = ('127.0.0.1', 4210)
+class CarMessageTx:
+    def __init__(self, send):
+        self._send_msg = send
         self.setPassword(1, b'\0\0\0\0\0\0')
-
-    def setDestination(self, dest):
-        self.dest = dest
 
     def setPassword(self, lvl, passwd):
         self.cis_lvl_passwd = b'CIS' + bytes([lvl]) + bytes(passwd)
@@ -28,8 +24,40 @@ class CarMessageUdpTx:
         self.setPassword(lvl, passwd)
 
     def send(self, msg):
+        if self._send_msg:
+            self._send_msg(self.cis_lvl_passwd + msg)
+
+class CarMessageUdpTx(CarMessageTx):
+    def __init__(self):
+        super().__init__(self._send)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.dest = ('127.0.0.1', 4210)
+
+    def setDestination(self, dest):
+        self.dest = dest
+
+    def _send(self, msg):
         if self.dest:
-            self.sock.sendto(self.cis_lvl_passwd + msg, self.dest)
+            self.sock.sendto(msg, self.dest)
+
+class CarMessageTcpTx(CarMessageTx):
+    def __init__(self):
+        super().__init__(self._send)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def invite_and_wait(self, port=4212, dest=('127.0.0.1', 4210)):
+        invite_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        forge = CarMessageForge()
+        self.sock.bind(('0.0.0.0', port))
+        self.sock.listen()
+        invite_sock.sendto(self.cis_lvl_passwd + forge.cmd_open_tcp_link(port), dest)
+
+        conn, addr = self.sock.accept()
+        self.sock.close()
+        self.sock = conn
+
+    def _send(self, msg):
+        self.sock.send(msg)
 
 class CarMessageForge:
     def cmd_open_tcp_link(self, port=4212):
