@@ -1,8 +1,18 @@
 #include <CarCtrl.hpp>
 
+namespace {
+	struct NullStream : public Stream{
+		int available() { return 0; }
+		int peek() { return -1; }
+		int read() { return -1; }
+		size_t write(uint8_t){ return 1; }
+		void flush() { }
+	} null_stream;
+}
+
 Stream & CarCtrlBase::log() {
 	if (_log_client.connected()) return _log_client;
-	return _car.debug_serial();
+	return null_stream;
 }
 
 void CarCtrl::init() {
