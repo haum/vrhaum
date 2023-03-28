@@ -117,9 +117,21 @@ void CarBoard::setSteering(int16_t i_angle) {
 }
 
 void CarBoard::setThrottle(int16_t i_speed) {
+	static int16_t i_current_speed = 0;
 	const int16_t value = (i_speed > 0) ? map(i_speed, 0, 32767, 1500-_throttle_start_fw, 1000) :
 	                      (i_speed < 0) ? map(i_speed, -32768, 0, 2000, 1500+_throttle_start_bw) :
 	                      1500;
+
+	// Workaround: Brushed motors can have difficulties to start to rotate
+	// To workaround this inertial effect, we overshoot during a short time, then set desired value
+	// FIXME: Implement this in a non-blocking way
+	if((i_current_speed == 0) && (i_speed != 0)) {
+		const int16_t i_value = i_speed > 0 ? 1000 : 2000;
+		_throttleServo.writeMicroseconds(i_value);
+		delay(20);
+	}
+	i_current_speed = i_speed;
+
 	_throttleServo.writeMicroseconds(value);
 }
 
