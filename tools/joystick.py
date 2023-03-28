@@ -6,6 +6,7 @@ class Joystick:
     def __init__(self, path, showcaps=False):
         self.dev = evdev.InputDevice(path)
         self.keys = {}
+        self.on_keys = {}
         self.axes = {}
         self.axes_info = {}
         self.effects = None
@@ -30,6 +31,9 @@ class Joystick:
         if self.effects:
             for effect_id in self.effects:
                 self.dev.erase_effect(effect_id)
+
+    def registerOnKeyEvent(self, key, function):
+        self.on_keys[key] = function
 
     def _add_rumble_effects(self):
         self.effects.append(
@@ -96,6 +100,9 @@ class Joystick:
                     self.axes[event.code] = event.value
                 elif event.type == evdev.ecodes.EV_KEY:
                     self.keys[event.code] = (event.value != 0)
+                    # Execute associated lambdas
+                    if event.code in self.on_keys.keys():
+                        self.on_keys[event.code](event.code, event.value)
         except BlockingIOError:
             pass
 
