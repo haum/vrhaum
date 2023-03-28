@@ -1,6 +1,10 @@
-# CarNode for 24HC23
+# VRHAUM subject for 24HC23
 
-This repo contains firmware and tools for the car of the 24HC23 edition.
+This repo contains the firmwares and tools for the car of the 24HC23 edition.
+
+.
+├── carnode: Firmware of the cars
+└── tools: Scripts for the event
 
 ## Requirements
 
