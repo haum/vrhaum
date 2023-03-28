@@ -140,14 +140,21 @@ class JoystickPilot:
         
         j.fetch_values()
 
-        if j.button(BTN_SELECT): self._allow_boost = 1
-        if j.button(BTN_START): self._allow_boost = 0
+        # Boost when A button is pressed
+        self._full_scale = 1.0 if j.button(BTN_A) else 0.25
 
-        thr = j.axis(ABS_RZ, False)
-        thr_max = 0.25 + 0.75 * j.axis(ABS_Z, False) * self._allow_boost
-        rev = 1 - 2 * (j.button(BTN_A) or j.button(BTN_B) or j.button(BTN_X) or j.button(BTN_Y))
+        throttle_forward = j.axis(ABS_RZ, False)
+        throttle_backward = j.axis(ABS_Z, False)
+
+        if (throttle_forward > 0) and (throttle_backward > 0):
+            # Stop car if both trigger buttons are pressed
+            speed = 0
+        else:
+            # Compute a signed speed with trigger buttons statuses
+            speed = throttle_forward + throttle_backward * -1.0
+
+        speed *= self._full_scale
         steer_raw = j.axis(ABS_X)
-        speed = thr * thr_max * rev
         aspeed = abs(speed)
         # Limit steering angle based on speed (more speed, less streering angle)
         steer = steer_raw * abs(steer_raw) * (1-aspeed*0.9)
