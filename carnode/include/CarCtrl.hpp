@@ -114,7 +114,7 @@ class CarCtrlRearlight : virtual public CarCtrlBase {
 class CarCtrlLL : virtual public CarCtrlBase {
 	public:
 		uint16_t batteryLevel_ADC() const { return _car.batteryLevel_ADC(); }
-		uint16_t batteryLevel_gauge() const { return _car.batteryLevel_gauge(); }
+		int16_t batterySOC() const { return _car.batterySOC(); }
 
 		std::array<int16_t, 3> imu_accelerometerData() const { return _car.imuAccelerometerData(); }
 		std::array<int16_t, 3> imu_gyroscopeData() const { return _car.imuGyroscopeData(); }

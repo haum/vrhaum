@@ -1,5 +1,6 @@
 #include <CarBoard.hpp>
 #include <ImuLSM6DS3.hpp>
+#include <Max17261.hpp>
 
 #include <ESP8266WiFi.h>
 #include <NeoPixelBus.h>
@@ -18,6 +19,7 @@ namespace {
 	ImuLSM6DS3 imu(Wire);
 	IRrecv ir_recv(PIN_IR);
 	decode_results ir_result;
+	Max17261 battery;
 };
 
 void CarBoard::init() {
@@ -47,6 +49,27 @@ void CarBoard::init() {
 	Wire.begin();
 	imu.init();
 	ir_recv.enableIRIn();
+
+	// Init battery
+
+	// 800 (400mAh on 10mΩ)
+	// 900 (450mAh on 10mΩ)
+	// 1200 (600mAh on 10mΩ)
+	const uint16_t designCapacity = 900;
+	// FIXME: Tune this value according to our application
+	const uint16_t iChgTerm = 0x0640; // (250mA on 10mΩ)
+	// VE: Empty Voltage Target, during load
+	// VR: Recovery voltage
+	const uint16_t vEmpty = 0xB961; // VE/VR: 0xAA61 → 3.4V/3.88V (0xA561 → 3.3V/3.88V (default))
+	// In typical cases, if charge voltage > 4,275 then 0x8400 else 0x8000
+	// FIXME: Tune this value according to our charge voltage
+	const uint16_t modelCFG = 0x8000;
+	battery.begin(
+			designCapacity,
+			iChgTerm,
+			vEmpty,
+			modelCFG
+		     );
 }
 
 void CarBoard::loop() {
@@ -125,6 +148,6 @@ uint16_t CarBoard::batteryLevel_ADC() const {
 	return _batt_adc;
 }
 
-uint16_t CarBoard::batteryLevel_gauge() const {
-	return 0;
+int16_t CarBoard::batterySOC() const {
+	return battery.readStateOfCharge();
 }

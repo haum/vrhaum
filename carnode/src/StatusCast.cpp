@@ -80,9 +80,9 @@ void StatusCast::loop() {
 			auto batt_adc = _car.batteryLevel_ADC();
 			msg[len++] = (batt_adc >> 0) & 0xFF;
 			msg[len++] = (batt_adc >> 8) & 0xFF;
-			auto batt_gauge = _car.batteryLevel_gauge();
-			msg[len++] = (batt_gauge >> 0) & 0xFF;
-			msg[len++] = (batt_gauge >> 8) & 0xFF;
+			auto batt_soc = _car.batterySOC();
+			msg[len++] = (batt_soc >> 0) & 0xFF;
+			msg[len++] = (batt_soc >> 8) & 0xFF;
 			break;
 		}
 		case STATUS_IMU: {

@@ -57,7 +57,7 @@ class CarBoard {
 		void setThrottleStart(uint16_t fw, uint16_t bw);
 
 		uint16_t batteryLevel_ADC() const;
-		uint16_t batteryLevel_gauge() const;
+		int16_t batterySOC() const;
 
 		std::array<int16_t, 3> imuAccelerometerData() const { return _imu_xl; }
 		std::array<int16_t, 3> imuGyroscopeData() const { return _imu_g; }
