@@ -57,7 +57,7 @@ class Cockpit:
         # Empty the buffer
         self._msg = b''
 
-        # Decode and execute even-driven registered functions if relevant
+        # Decode and execute event-driven registered functions if relevant
         # NOTE: Event-based function will add their commands during this
         throttle, steering = self._pilot.decode(self._joystick)
         throttle = int(throttle*32767)
