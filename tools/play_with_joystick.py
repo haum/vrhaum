@@ -31,6 +31,7 @@ class Cockpit:
 
         # Register event-based functions
         self._joystick.registerOnKeyEvent(BTN_START, self.toogleEngine)
+        self._joystick.registerOnKeyEvent(BTN_X, self.setHeadLights)
 
     def toogleEngine(self, key, value):
         # Only toogle engine when button is pressed (not released)
@@ -39,6 +40,10 @@ class Cockpit:
         self._engine_on = not self._engine_on
         print("Turn engine '%s'" % ('on' if self._engine_on else 'off'))
         self._msg += self._forge.cmd_engine_on(self._engine_on)
+
+    def setHeadLights(self, key, value):
+        if self._engine_on:
+            self._msg += self._forge.cmd_headlights(65535 if value else 20000)
 
     def process(self):
         # Empty the buffer
@@ -50,9 +55,6 @@ class Cockpit:
         throttle = int(throttle*32767)
         steering = int(steering*32767)
         self._msg += self._forge.cmd_pilot(throttle, steering)
-
-        if self._engine_on:
-            self._msg += self._forge.cmd_headlights(65535 if self._joystick.button(BTN_X) else 20000)
 
         # Send all commands in a row to the car
         self._cartx.send(self._msg)
