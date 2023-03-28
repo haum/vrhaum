@@ -14,7 +14,7 @@ def interactive(tx):
     while True:
         nb = choice_input(cmds, 'Command?')
         if nb == 1:
-            tx.input_setPassword()
+            tx.input_usePrivilegeLevel()
         else:
             cmd = getattr(forge, 'cmd_' + cmds[nb-1])
             args = []
