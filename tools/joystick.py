@@ -91,7 +91,7 @@ class Joystick:
     def fetch_values(self):
         try:
             for event in self.dev.read():
-                #print(evdev.util.categorize(event))
+                # DEBUG: print(evdev.util.categorize(event))
                 if event.type == evdev.ecodes.EV_ABS:
                     self.axes[event.code] = event.value
                 elif event.type == evdev.ecodes.EV_KEY:
@@ -149,6 +149,7 @@ class JoystickPilot:
         steer_raw = j.axis(ABS_X)
         speed = thr * thr_max * rev
         aspeed = abs(speed)
+        # Limit steering angle based on speed (more speed, less streering angle)
         steer = steer_raw * abs(steer_raw) * (1-aspeed*0.9)
 
         return speed, steer
