@@ -138,7 +138,7 @@ def choose_joystick(showcaps=False):
 
 class JoystickPilot:
     def __init__(self):
-        self._allow_boost = False
+        self._assist_mode = True
 
     def decode(self, j):
         from evdev.ecodes import BTN_A, BTN_B, BTN_X, BTN_Y, BTN_TL, BTN_TR
@@ -161,12 +161,12 @@ class JoystickPilot:
             speed = throttle_forward + throttle_backward * -1.0
 
         speed *= self._full_scale
-        steer_raw = j.axis(ABS_X)
-        aspeed = abs(speed)
-        # Limit steering angle based on speed (more speed, less streering angle)
-        steer = steer_raw * abs(steer_raw) * (1-aspeed*0.9)
 
-        return speed, steer
+        steering_raw = j.axis(ABS_X)
+        # In assist mode, limit steering angle based on speed (more speed, less steering angle)
+        steering = steering_raw * abs(steering_raw) * (1-abs(speed)*0.9) if self._assist_mode else steering_raw
+
+        return speed, steering
 
 if __name__ == '__main__':
     import time

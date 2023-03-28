@@ -5,6 +5,7 @@ import time
 from cardetector import CarDetector
 from joystick import choose_joystick, JoystickPilot
 from carmessagestx import CarMessageUdpTx, CarMessageForge
+from evdev.ecodes import BTN_X, BTN_START, BTN_SELECT
 
 class Cockpit:
     def __init__(self, joystick, car):
@@ -32,6 +33,7 @@ class Cockpit:
         # Register event-based functions
         self._joystick.registerOnKeyEvent(BTN_START, self.toogleEngine)
         self._joystick.registerOnKeyEvent(BTN_X, self.setHeadLights)
+        self._joystick.registerOnKeyEvent(BTN_SELECT, self.toogleAssistMode)
 
     def toogleEngine(self, key, value):
         # Only toogle engine when button is pressed (not released)
@@ -40,6 +42,12 @@ class Cockpit:
         self._engine_on = not self._engine_on
         print("Turn engine '%s'" % ('on' if self._engine_on else 'off'))
         self._msg += self._forge.cmd_engine_on(self._engine_on)
+
+    def toogleAssistMode(self, key, value):
+        # Only toogle assist mode when button is pressed (not released)
+        if value == 0: return
+        self._pilot._assist_mode = not self._pilot._assist_mode
+        print("Turn assist mode '%s'" % ('on' if self._pilot._assist_mode else 'off'))
 
     def setHeadLights(self, key, value):
         if self._engine_on:
@@ -60,8 +68,6 @@ class Cockpit:
         self._cartx.send(self._msg)
 
 if __name__ == '__main__':
-    from evdev.ecodes import BTN_X, BTN_START
-
     detector = CarDetector()
     detector.start()
 
