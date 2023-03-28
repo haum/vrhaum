@@ -26,7 +26,7 @@ if __name__ == '__main__':
     car = (car_info['ip'], car_info['port'])
 
     cartx = CarMessageUdpTx()
-    cartx.setPassword(1, b'\0\0\0\0\0\0')
+    cartx.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
     cartx.setDestination(car)
 
     forge = CarMessageForge()

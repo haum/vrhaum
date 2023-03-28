@@ -6,12 +6,12 @@ import struct
 class CarMessageTx:
     def __init__(self, send):
         self._send_msg = send
-        self.setPassword(1, b'\0\0\0\0\0\0')
+        self.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
 
-    def setPassword(self, lvl, passwd):
+    def usePrivilegeLevel(self, lvl, passwd):
         self.cis_lvl_passwd = b'CIS' + bytes([lvl]) + bytes(passwd)
 
-    def input_setPassword(self):
+    def input_usePrivilegeLevel(self):
         from ast import literal_eval
         from input_utils import choice_input
         lvl = choice_input(['1', '2', '3'], 'Which level?')
@@ -21,7 +21,7 @@ class CarMessageTx:
                 passwd = (literal_eval('b\''+input('Password? ')+'\'') + b'\0'*6)[:6]
             except SyntaxError:
                 print('Invalid input.')
-        self.setPassword(lvl, passwd)
+        self.usePrivilegeLevel(lvl, passwd)
 
     def send(self, msg):
         if self._send_msg:
