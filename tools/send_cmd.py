@@ -34,11 +34,11 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 2 and sys.argv[1] == 'tcp':
         cartx = CarMessageTcpTx()
-        cartx.input_setPassword()
+        cartx.input_usePrivilegeLevel()
         cartx.invite_and_wait(4212, car)
     elif (len(sys.argv) == 2 and sys.argv[1] == 'udp') or len(sys.argv) == 1:
         cartx = CarMessageUdpTx()
-        cartx.setPassword(1, b'\0\0\0\0\0\0')
+        cartx.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
         cartx.setDestination(car)
     else:
         print('Usage: ' + sys.argv[0] + '[udp|tcp]')

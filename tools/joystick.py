@@ -6,6 +6,7 @@ class Joystick:
     def __init__(self, path, showcaps=False):
         self.dev = evdev.InputDevice(path)
         self.keys = {}
+        self.on_keys = {}
         self.axes = {}
         self.axes_info = {}
         self.effects = None
@@ -30,6 +31,9 @@ class Joystick:
         if self.effects:
             for effect_id in self.effects:
                 self.dev.erase_effect(effect_id)
+
+    def registerOnKeyEvent(self, key, function):
+        self.on_keys[key] = function
 
     def _add_rumble_effects(self):
         self.effects.append(
@@ -91,11 +95,14 @@ class Joystick:
     def fetch_values(self):
         try:
             for event in self.dev.read():
-                #print(evdev.util.categorize(event))
+                # DEBUG: print(evdev.util.categorize(event))
                 if event.type == evdev.ecodes.EV_ABS:
                     self.axes[event.code] = event.value
                 elif event.type == evdev.ecodes.EV_KEY:
                     self.keys[event.code] = (event.value != 0)
+                    # Execute associated lambdas
+                    if event.code in self.on_keys.keys():
+                        self.on_keys[event.code](event.code, event.value)
         except BlockingIOError:
             pass
 
@@ -131,7 +138,7 @@ def choose_joystick(showcaps=False):
 
 class JoystickPilot:
     def __init__(self):
-        self._allow_boost = False
+        self._assist_mode = True
 
     def decode(self, j):
         from evdev.ecodes import BTN_A, BTN_B, BTN_X, BTN_Y, BTN_TL, BTN_TR
@@ -140,18 +147,26 @@ class JoystickPilot:
         
         j.fetch_values()
 
-        if j.button(BTN_SELECT): self._allow_boost = 1
-        if j.button(BTN_START): self._allow_boost = 0
+        # Boost when A button is pressed
+        self._full_scale = 1.0 if j.button(BTN_A) else 0.25
 
-        thr = j.axis(ABS_RZ, False)
-        thr_max = 0.25 + 0.75 * j.axis(ABS_Z, False) * self._allow_boost
-        rev = 1 - 2 * (j.button(BTN_A) or j.button(BTN_B) or j.button(BTN_X) or j.button(BTN_Y))
-        steer_raw = j.axis(ABS_X)
-        speed = thr * thr_max * rev
-        aspeed = abs(speed)
-        steer = steer_raw * abs(steer_raw) * (1-aspeed*0.9)
+        throttle_forward = j.axis(ABS_RZ, False)
+        throttle_backward = j.axis(ABS_Z, False)
 
-        return speed, steer
+        if (throttle_forward > 0) and (throttle_backward > 0):
+            # Stop car if both trigger buttons are pressed
+            speed = 0
+        else:
+            # Compute a signed speed with trigger buttons statuses
+            speed = throttle_forward + throttle_backward * -1.0
+
+        speed *= self._full_scale
+
+        steering_raw = j.axis(ABS_X)
+        # In assist mode, limit steering angle based on speed (more speed, less steering angle)
+        steering = steering_raw * abs(steering_raw) * (1-abs(speed)*0.9) if self._assist_mode else steering_raw
+
+        return speed, steering
 
 if __name__ == '__main__':
     import time
