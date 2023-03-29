@@ -24,9 +24,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="4.5951968"
-     inkscape:cx="47.767269"
-     inkscape:cy="61.368427"
+     inkscape:zoom="5.5243371"
+     inkscape:cx="-52.766512"
+     inkscape:cy="113.31676"
      inkscape:window-width="3200"
      inkscape:window-height="1731"
      inkscape:window-x="0"
@@ -52,5 +52,22 @@
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96"
        rx="5.2916665" />
+    <rect
+       style="fill:#cccccc;stroke:none;stroke-width:1.51203;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none;stop-color:#000000"
+       id="rect462"
+       width="5.2916665"
+       height="42.333332"
+       x="76.95417"
+       y="101.01872"
+       inkscape:export-filename="bg.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="rect1011"
+       style="fill:#f9f9f9;stroke:none;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;-inkscape-stroke:none;stop-color:#000000;font-variation-settings:normal;opacity:1;vector-effect:none;fill-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stop-opacity:1"
+       d="M 75.63125 99.695805 L 75.63125 144.67497 L 83.56875 144.67497 L 83.56875 99.695805 L 75.63125 99.695805 z M 79.71989 101.30914 A 1.322915 1.322915 0 0 1 80.015479 101.32413 A 1.322915 1.322915 0 0 1 81.107402 102.84393 C 81.107402 102.84393 80.394006 107.26019 80.316236 110.23263 C 80.239495 113.16581 80.920879 115.27246 81.294987 120.88469 C 81.479301 123.6497 80.869259 126.80932 80.708977 129.9999 C 80.512489 133.91115 80.986449 136.71731 80.56635 141.85344 A 1.322915 1.322915 0 0 1 79.13853 143.06422 A 1.322915 1.322915 0 0 1 77.929818 141.63846 C 78.33005 136.74525 77.856427 134.04366 78.066244 129.86709 C 78.237909 126.44994 78.801169 123.26335 78.654322 121.06039 C 78.291928 115.6239 77.584213 113.51584 77.671953 110.16235 C 77.758664 106.84811 78.496192 102.41605 78.496192 102.41605 A 1.322915 1.322915 0 0 1 79.71989 101.30914 z "
+       inkscape:export-filename="./boost_mask.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>
