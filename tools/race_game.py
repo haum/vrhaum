@@ -15,16 +15,16 @@ class GameManager:
         pyglet.resource.reindex()
 
         self.img_bg = pyglet.resource.image("bg.png")
-        self.img_bg.anchor_x = 0
-        self.img_bg.anchor_y = 0
+        self.bg = pyglet.image.TileableTexture.create_for_image(self.img_bg)
 
-        self.winw = 120
-        self.window = pyglet.window.Window(self.winw, 160, 'CarInSitu - Race Game', visible=False)
+        self.winw = 160
+        self.window = pyglet.window.Window(self.winw*4, 200, 'CarInSitu - Race Game', visible=False)
         self.batch = pyglet.graphics.Batch()
 
         @self.window.event
         def on_draw():
             self.window.clear()
+            self.bg.blit_tiled(0, 0, 0, self.window.width, self.window.height)
             self.batch.draw()
 
         @self.window.event
@@ -38,12 +38,10 @@ class GameManager:
         self.players = []
         self.state = 'null'
         self.change_state('wait_start')
-        #self.change_state('race')
 
     def set_players(self, players):
         self.players = players
         self.ips = [p.ip for p in self.players]
-        self.window.width = self.winw * len(players)
         self.window.set_visible(True)
 
     def change_state(self, nstate):
@@ -92,8 +90,7 @@ class GameManager:
             p.boost.visible = False
 
     def state__race__tick(self, dt):
-        t0 = self.t
-
+        pass
 
     def tick_null(self, dt):
         pass
@@ -120,11 +117,10 @@ class Player:
         self.progress_next_gate = self.gm.gates[0]
 
         x0 = i * gm.winw
-        self.bg = pyglet.sprite.Sprite(img=gm.img_bg, x=x0+0, y=0, batch=gm.batch)
         self.txt_countdown = pyglet.text.Label('', x=x0+gm.winw//2, y=gm.window.height//2, font_size=50, color=(210, 210, 210, 255), anchor_x='center', batch=gm.batch)
         self.txt_countdown.visible = False
 
-        self.boost = pyglet.shapes.Rectangle(x=x0+20, y=30, width=10, height=100, color=(0x00, 0x88, 0xAA), batch=gm.batch)
+        self.boost = pyglet.shapes.Rectangle(x=x0+20, y=30, width=10, height=140, color=(0x00, 0x88, 0xAA), batch=gm.batch)
         self.boost.visible = False
 
     def set_color(self, r, g, b):

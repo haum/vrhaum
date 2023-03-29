@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="31.75mm"
-   height="42.333332mm"
-   viewBox="0 0 31.75 42.333332"
+   width="42.333336mm"
+   height="52.916668mm"
+   viewBox="0 0 42.333336 52.916668"
    version="1.1"
    id="svg5"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
@@ -18,15 +18,15 @@
      pagecolor="#ffffff"
      bordercolor="#999999"
      borderopacity="1"
-     inkscape:showpageshadow="0"
+     inkscape:showpageshadow="true"
      inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
+     inkscape:pagecheckerboard="true"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="5.9426532"
-     inkscape:cx="73.956865"
-     inkscape:cy="72.863078"
+     inkscape:zoom="4.5951968"
+     inkscape:cx="47.767269"
+     inkscape:cy="61.368427"
      inkscape:window-width="3200"
      inkscape:window-height="1731"
      inkscape:window-x="0"
@@ -41,15 +41,16 @@
      id="layer1"
      transform="translate(-72.985417,-95.727055)">
     <rect
-       style="fill:#f9f9f9;stroke:#4d4d4d;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
+       style="fill:#f9f9f9;stroke:#ff6600;stroke-width:0.529167;stroke-dasharray:none;stroke-opacity:1;stop-color:#000000"
        id="rect243"
-       width="31.220833"
-       height="41.804165"
+       width="41.804169"
+       height="52.387501"
        x="73.25"
        y="95.991638"
        ry="5.2916665"
        inkscape:export-filename="bg.png"
        inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
+       inkscape:export-ydpi="96"
+       rx="5.2916665" />
   </g>
 </svg>
