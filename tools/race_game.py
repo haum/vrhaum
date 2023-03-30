@@ -4,7 +4,7 @@ from input_utils import choice_input, yn_input
 
 from cardetector import CarDetector
 from carmessagesrx import CarMulticastReceiver, CarMulticastDecoder
-from joystick import choose_joystick, JoystickPilot
+from joystick import choose_joystick, JoystickPilot, BTN_A
 
 import pyglet
 import math
@@ -33,10 +33,6 @@ class GameManager:
             self.bg.blit_tiled(0, 0, 0, self.window.width, self.window.height)
             self.batch.draw()
 
-        @self.window.event
-        def on_key_press(symbol, modifiers):
-            if self.state == 'wait_start': self.change_state('countdown')
-
         self.gates = gates
         self.laps = laps
         self.receiver = CarMulticastReceiver()
@@ -51,7 +47,7 @@ class GameManager:
 
     def start(self):
         self.window.set_visible(True)
-        self.change_state('wait_start')
+        self.change_state('getready')
 
     def recompute_ranks(self):
         for i, (_, _, n) in enumerate(sorted([(p.progress, -p.rank, p.nb) for p in self.players], reverse=True)):
@@ -73,6 +69,31 @@ class GameManager:
         tick = 'state__' + nstate + '__tick'
         self.state_tick = getattr(self, tick) if tick in dir(self) else self.tick_null
         self.state = nstate
+
+    def state__getready__start(self):
+        self.t = 0
+        for p in self.players:
+            p.ready = False
+            p.txt_ready.text = 'Appuyez\nsur « A »'
+            p.txt_ready.visible = True
+
+    def state__getready__stop(self):
+        for p in self.players:
+            p.txt_ready.visible = False
+
+    def state__getready__tick(self, dt):
+        self.t += dt
+        ready = sum(p.ready for p in self.players)
+
+        for p in self.players:
+            p.joystick.fetch_values()
+            if p.joystick.button(BTN_A, True):
+                if not ready: self.t = 0
+                p.ready = True
+                p.txt_ready.text = 'Prêt'
+
+        if ready == len(self.players) and self.t > 1.5:
+            self.change_state('countdown')
 
     def state__countdown__start(self):
         self.t = 3.1
@@ -172,8 +193,12 @@ class Player:
         self.nb = nb
         self.ip = car['ip']
         self.gm = gm
+        self.joystick = joystick
+        self.ready = False
 
         x0 = nb * gm.winw
+        self.txt_ready = pyglet.text.Label('', x=x0+gm.winw//2, y=gm.window.height//2, width=gm.winw, font_size=20, color=(30, 180, 0, 255), anchor_x='center', align='center', multiline=True, batch=gm.batch)
+        self.txt_ready.visible = False
         self.txt_countdown = pyglet.text.Label('', x=x0+gm.winw//2, y=gm.window.height//2, font_size=50, color=(210, 210, 210, 255), anchor_x='center', batch=gm.batch)
         self.txt_countdown.visible = False
 
