@@ -3,14 +3,12 @@
 import time
 
 from cardetector import CarDetector
-from joystick import choose_joystick, JoystickPilot
+from joystick import choose_joystick, JoystickPilot, BTN_X, BTN_START, BTN_SELECT
 from carmessagestx import CarMessageUdpTx, CarMessageForge
-from evdev.ecodes import BTN_X, BTN_START, BTN_SELECT
 
 class Cockpit:
     def __init__(self, joystick, car):
-        self._joystick = joystick
-        self._pilot = JoystickPilot()
+        self._pilot = JoystickPilot(joystick)
 
         self._cartx = CarMessageUdpTx()
         self._cartx.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
@@ -28,23 +26,25 @@ class Cockpit:
         self._cartx.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
 
     def process(self):
+        self._pilot.decode()
+
         msg = b''
 
-        throttle, steering = self._pilot.decode(self._joystick)
+        throttle, steering = self._pilot.pilot_commands()
         throttle = int(throttle*32767)
         steering = int(steering*32767)
         msg += self._forge.cmd_pilot(throttle, steering)
 
-        if self._joystick.button(BTN_START, True):
+        j = self._pilot.joystick()
+        if j.button(BTN_START, True):
             self._engine_on = not self._engine_on
             print("Turn engine '%s'" % ('on' if self._engine_on else 'off'))
             msg += self._forge.cmd_engine_on(self._engine_on)
 
-        if self._joystick.button(BTN_SELECT, True):
-            self._pilot._assist_mode = not self._pilot._assist_mode
-            print("Turn assist mode '%s'" % ('on' if self._pilot._assist_mode else 'off'))
+        if j.button(BTN_SELECT, True):
+            print("Turn assist mode '%s'" % ('on' if self._pilot.assistance_enabled() else 'off')) # Change is done in pilot, but let's display a message
 
-        btn_x = self._joystick.button(BTN_X, True)
+        btn_x = j.button(BTN_X, True)
         if btn_x is not None:
             if self._engine_on:
                 msg += self._forge.cmd_headlights(65535 if btn_x else 20000)

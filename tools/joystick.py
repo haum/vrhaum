@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 import evdev
+from evdev.ecodes import BTN_A, BTN_B, BTN_X, BTN_Y, BTN_TL, BTN_TR
+from evdev.ecodes import BTN_SELECT, BTN_START, BTN_MODE, BTN_THUMBL, BTN_THUMBR
+from evdev.ecodes import ABS_X, ABS_Y, ABS_Z, ABS_RX, ABS_RY, ABS_RZ
 
 class Joystick:
     def __init__(self, path, showcaps=False):
@@ -136,45 +139,68 @@ def choose_joystick(showcaps=False):
         if nb is None: return None
 
 class JoystickPilot:
-    def __init__(self):
-        self._assist_mode = True
+    def __init__(self, joystick):
+        self._joystick = joystick
 
-    def decode(self, j):
-        from evdev.ecodes import BTN_A, BTN_B, BTN_X, BTN_Y, BTN_TL, BTN_TR
-        from evdev.ecodes import BTN_SELECT, BTN_START, BTN_MODE, BTN_THUMBL, BTN_THUMBR
-        from evdev.ecodes import ABS_X, ABS_Y, ABS_Z, ABS_RX, ABS_RY, ABS_RZ
+        self._boost_allowed = True
+        self._assisted_mode = True
+
+        self._boost_used = False
+        self._speed = 0
+        self._steering = 0
+
+    def decode(self):
+        j = self._joystick
         j.fetch_values()
 
-        # Boost when A button is pressed
-        self._full_scale = 1.0 if j.button(BTN_A) else 0.25
+        if j.button(BTN_SELECT, True):
+            self._assisted_mode = not self._assisted_mode
 
-        throttle_forward = j.axis(ABS_RZ, False)
-        throttle_backward = j.axis(ABS_Z, False)
+        throttle_fw = j.axis(ABS_RZ, False)
+        throttle_bw = j.axis(ABS_Z, False)
 
-        if (throttle_forward > 0) and (throttle_backward > 0):
-            # Stop car if both trigger buttons are pressed
-            speed = 0
-        else:
-            # Compute a signed speed with trigger buttons statuses
-            speed = throttle_forward + throttle_backward * -1.0
+        speed = throttle_fw - throttle_bw
+        if throttle_fw and throttle_bw: speed = 0 # Stop car if both trigger buttons are pressed
 
-        speed *= self._full_scale
+        self._boost_used = self._boost_allowed and j.button(BTN_A)
+        if not self._boost_used:
+            speed *= 0.25
 
-        steering_raw = j.axis(ABS_X)
-        # In assist mode, limit steering angle based on speed (more speed, less steering angle)
-        steering = steering_raw * abs(steering_raw) * (1-abs(speed)*0.9) if self._assist_mode else steering_raw
+        steering = j.axis(ABS_X)
+        if self._assisted_mode: # In assist mode, limit steering angle based on speed (more speed, less steering angle)
+            steering = steering * abs(steering) * (1-abs(speed)*0.9)
 
-        return speed, steering
+        self._speed = speed
+        self._steering = steering
+
+    def joystick(self):
+        return self._joystick
+
+    def set_assistance(self, v=True):
+        self._assisted_mode = v
+
+    def assistance_enabled(self):
+        return self._assisted_mode
+
+    def boost_used(self):
+        return self._boost_used
+
+    def pilot_commands(self):
+        return self._speed, self._steering
+
+    def allow_boost(self, v=True):
+        self._boost_allowed = v
 
 if __name__ == '__main__':
     import time
 
     j = choose_joystick(True)
-    pilot = JoystickPilot()
+    pilot = JoystickPilot(j)
 
     print(j.name())
     while True:
-        speed, steer = pilot.decode(j)
+        pilot.decode()
+        speed, steer = pilot.pilot_commands()
         print('CMD', speed, steer)
         time.sleep(.1)
 
