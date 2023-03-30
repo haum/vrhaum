@@ -78,8 +78,8 @@ if __name__ == '__main__':
         rssi_txt.text = str(v) + 'dB'
 
     def set_batt(v):
-        volts = v/1024*8.8
-        p = min(max(0, (volts-7)/(8.4-7)), 1)
+        soc = v/25600
+        p = min(max(0, soc), 1)
         batt_bar.width = p*80
         batt_txt.text = str(round(p*1000)/10) + '%'
 
@@ -118,8 +118,8 @@ if __name__ == '__main__':
                 if 'pilot_steering' in m:
                     set_throttle(m['pilot_throttle'])
                     set_angle(m['pilot_steering'])
-                if 'batt_gauge' in m:
-                    set_batt(m['batt_adc'])
+                if 'batt_soc' in m:
+                    set_batt(m['batt_soc'])
                 if 'RSSI' in m:
                     set_rssi(m['RSSI'])
                 if 'imu_a_x' in m:
