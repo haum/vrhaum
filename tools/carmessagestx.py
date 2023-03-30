@@ -8,6 +8,16 @@ class CarMessageTx:
         self._send_msg = send
         self.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
 
+    def useAdminLevel(self):
+        import os
+        pwd = b'\0\0\0\0\0\0'
+        try:
+            with open(os.path.join(os.path.dirname(__file__), 'admin_pass'), 'rb') as f:
+                pwd = bytes((f.read(6)+b'\0'*6)[:6])
+        except:
+            pass
+        self.usePrivilegeLevel(3, pwd)
+
     def usePrivilegeLevel(self, lvl, passwd):
         self.cis_lvl_passwd = b'CIS' + bytes([lvl]) + bytes(passwd)
 
