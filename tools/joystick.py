@@ -6,7 +6,7 @@ class Joystick:
     def __init__(self, path, showcaps=False):
         self.dev = evdev.InputDevice(path)
         self.keys = {}
-        self.on_keys = {}
+        self.keys_just_pressed = {}
         self.axes = {}
         self.axes_info = {}
         self.effects = None
@@ -31,9 +31,6 @@ class Joystick:
         if self.effects:
             for effect_id in self.effects:
                 self.dev.erase_effect(effect_id)
-
-    def registerOnKeyEvent(self, key, function):
-        self.on_keys[key] = function
 
     def _add_rumble_effects(self):
         self.effects.append(
@@ -93,6 +90,7 @@ class Joystick:
         return self.dev.name
 
     def fetch_values(self):
+        self.keys_just_pressed = {}
         try:
             for event in self.dev.read():
                 # DEBUG: print(evdev.util.categorize(event))
@@ -100,14 +98,15 @@ class Joystick:
                     self.axes[event.code] = event.value
                 elif event.type == evdev.ecodes.EV_KEY:
                     self.keys[event.code] = (event.value != 0)
-                    # Execute associated lambdas
-                    if event.code in self.on_keys.keys():
-                        self.on_keys[event.code](event.code, event.value)
+                    self.keys_just_pressed[event.code] = (event.value != 0)
         except BlockingIOError:
             pass
 
-    def button(self, code):
-        return self.keys.get(code, False)
+    def button(self, code, just_pressed=False):
+        if just_pressed:
+            return self.keys_just_pressed.get(code, None)
+        else:
+            return self.keys.get(code, False)
 
     def axis(self, code, centered=True):
         v = self.axes.get(code, None)
@@ -144,7 +143,6 @@ class JoystickPilot:
         from evdev.ecodes import BTN_A, BTN_B, BTN_X, BTN_Y, BTN_TL, BTN_TR
         from evdev.ecodes import BTN_SELECT, BTN_START, BTN_MODE, BTN_THUMBL, BTN_THUMBR
         from evdev.ecodes import ABS_X, ABS_Y, ABS_Z, ABS_RX, ABS_RY, ABS_RZ
-        
         j.fetch_values()
 
         # Boost when A button is pressed
