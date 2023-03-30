@@ -4,10 +4,12 @@ from input_utils import choice_input, yn_input
 
 from cardetector import CarDetector
 from carmessagesrx import CarMulticastReceiver, CarMulticastDecoder
-from joystick import choose_joystick, JoystickPilot, BTN_A
+from carmessagestx import CarMessageUdpTx, CarMessageForge
+from joystick import choose_joystick, JoystickPilot, BTN_A, BTN_X, BTN_START, BTN_MODE
 
 import pyglet
 import math
+import random
 
 def time2str(t):
     minutes = t // 60
@@ -103,6 +105,7 @@ class GameManager:
 
     def state__countdown__stop(self):
         for p in self.players:
+            p.txt_countdown.text = ''
             p.txt_countdown.visible = False
 
     def state__countdown__tick(self, dt):
@@ -120,11 +123,12 @@ class GameManager:
             for p in self.players:
                 p.txt_countdown.text = 'GO'
                 p.txt_countdown.color = (30, 180, 0, 255)
-        if self.t < -1:
+                p.process_pilot()
+        if self.t < -0.5:
             self.change_state('race')
 
     def state__race__start(self):
-        self.t = 0
+        self.t = 1
         for p in self.players:
             p.reset()
 
@@ -166,11 +170,63 @@ class GameManager:
     def state__race__tick(self, dt):
         self.t += dt
         str_t = time2str(self.t)
+        if sum(p.duration is not None and self.t - p.duration_timestamp > 10 for p in self.players) == len(self.players):
+            self.change_state('endgame')
         for p in self.players:
-            p.txt_time.text = str_t if not p.duration else p.duration
-            temporary_anim = self.t % 2
-            p.boost = temporary_anim if temporary_anim  < 1 else 2-temporary_anim
-            p.bar_boost.height = p.boost*160
+            if p.duration:
+                p.txt_time.text = p.duration
+                p.pilot.allow_boost(False)
+            else:
+                p.txt_time.text = str_t
+                p.pilot.allow_boost(p.boost_allowed)
+                if p.pilot.boost_used():
+                    p.boost -= dt / 3
+                    p.boost -= dt / 1.5 * p.throttle**2
+                else:
+                    p.boost += dt / 20 * (1 - 2 * abs(p.throttle))
+                p.boost = min(1, p.boost)
+                if p.boost > 0.75: p.boost_allowed = True
+                if p.boost < 0.5 and not p.pilot.boost_used(): p.boost_allowed = False
+                if p.boost < 0: p.boost_allowed = False
+            p.bar_boost.height = max(p.boost, 0)*160
+            p.process_pilot()
+
+    def state__endgame__start(self):
+        self.t = 0
+        for p in self.players:
+            p.bar_boost_bg.visible = True
+            p.bar_boost.visible = True
+            p.boost_mask.visible = True
+            p.txt_rank_title.visible = True
+            p.txt_rank.visible = True
+            p.txt_rank_total.visible = True
+            p.txt_time_title.visible = True
+            p.txt_time.visible = True
+            p.txt_besttime_title.visible = True
+            p.txt_besttime.visible = True
+
+    def state__endgame__stop(self):
+        for p in self.players:
+            p.reset()
+            p.bar_boost_bg.visible = False
+            p.bar_boost.visible = False
+            p.boost_mask.visible = False
+            p.txt_rank_title.visible = False
+            p.txt_rank.visible = False
+            p.txt_rank_total.visible = False
+            p.txt_time_title.visible = False
+            p.txt_time.visible = False
+            p.txt_besttime_title.visible = False
+            p.txt_besttime.visible = False
+
+    def state__endgame__tick(self, dt):
+        self.t += dt
+        for p in self.players:
+            p.joystick.fetch_values()
+            if p.joystick.button(BTN_MODE, True):
+                self.change_state('getready')
+        if self.t > 60:
+            self.change_state('getready')
 
     def tick_null(self, dt):
         pass
@@ -193,8 +249,21 @@ class Player:
         self.nb = nb
         self.ip = car['ip']
         self.gm = gm
-        self.joystick = joystick
         self.ready = False
+
+        self.joystick = joystick
+        self.pilot = JoystickPilot(joystick)
+        self.cartx = CarMessageUdpTx()
+        self.forge = CarMessageForge()
+        self.cartx.setDestination((car['ip'], car['port']))
+        rnd_pass = random.randbytes(6)
+        self.cartx.useAdminLevel()
+        self.cartx.send(
+            self.forge.cmd_change_pass_lvl1(rnd_pass) +
+            self.forge.cmd_change_pass_lvl2(rnd_pass) +
+            self.forge.cmd_limit_speed(32767, -16000)
+        )
+        self.cartx.usePrivilegeLevel(1, rnd_pass)
 
         x0 = nb * gm.winw
         self.txt_ready = pyglet.text.Label('', x=x0+gm.winw//2, y=gm.window.height//2, width=gm.winw, font_size=20, color=(30, 180, 0, 255), anchor_x='center', align='center', multiline=True, batch=gm.batch)
@@ -240,16 +309,51 @@ class Player:
         self.duration = None
         self.bestlap_time = 1e9
         self.lapstart = None
+        self.throttle = 0
         self.boost = 0.5
+        self.boost_allowed = False
+        self.pilot.allow_boost(False)
+
+        self.cartx.send(self.forge.cmd_engine_on())
+        self.engine_on = True
+
+    def process_pilot(self):
+        self.pilot.decode()
+
+        msg = b''
+
+        j = self.pilot.joystick()
+        if j.button(BTN_START, True):
+            self.engine_on = not self.engine_on
+            msg += self.forge.cmd_engine_on(self.engine_on)
+
+        btn_x = j.button(BTN_X, True)
+        if btn_x is not None:
+            if self.engine_on:
+                msg += self.forge.cmd_headlights(65535 if btn_x else 20000)
+
+        throttle, steering = self.pilot.pilot_commands()
+        if self.duration:
+            reduc_fact = 1-(self.gm.t - self.duration_timestamp)/10
+            if reduc_fact < 0 or reduc_fact > 1: reduc_fact = 0
+            throttle *= reduc_fact
+        self.throttle = throttle
+        msg += self.forge.cmd_pilot(int(throttle*32767), int(steering*32767))
+
+        self.cartx.send(msg)
 
     def set_color(self, r, g, b):
-        self.bar_boost.color = (r, g, b, 255)
+        if self.boost_allowed:
+            self.bar_boost.color = (r, g, b, 255)
+        else:
+            self.bar_boost.color = (r//2, g//2, b//2, 128)
 
     def set_gate(self, gate):
         if gate == self.progress_next_gate:
             self.progress += 1
             if self.progress == len(self.gm.gates) * self.gm.laps:
-                self.duration = time2str(self.gm.t)
+                self.duration_timestamp = self.gm.t
+                self.duration = time2str(self.duration_timestamp)
                 self.progress_next_gate = self.progress_prev_gate = None
             else:
                 self.progress_next_gate = self.gm.gates[(self.progress+1)%len(self.gm.gates)]
