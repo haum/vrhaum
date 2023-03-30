@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import time
+import random
 
 from cardetector import CarDetector
 from joystick import choose_joystick, JoystickPilot, BTN_X, BTN_START, BTN_SELECT
@@ -18,11 +19,22 @@ class Cockpit:
         self._cartx.send(self._forge.cmd_engine_on())
         self._engine_on = True
 
-        # Use higher privilege level to extend max speed
-        self._cartx.usePrivilegeLevel(2, b'\0\0\0\0\0\0')
-        self._cartx.send(self._forge.cmd_limit_speed(32767, -16000))
+        self._session_pass = random.randbytes(6)
+        self._cartx.usePrivilegeLevel(2, b'\0\0\0\0\0\0') # User level2 privilege to set config
+        self._cartx.send( # Change pass for the session + limit speed
+            self._forge.cmd_change_pass_lvl1(self._session_pass) +
+            self._forge.cmd_change_pass_lvl2(self._session_pass) +
+            self._forge.cmd_limit_speed(32767, -16384)
+        )
+        self._cartx.usePrivilegeLevel(1, self._session_pass) # Lower privilege level
 
-        # Back to lower level
+    def release(self):
+        self._cartx.usePrivilegeLevel(2, self._session_pass)
+        self._cartx.send(
+            self._forge.cmd_change_pass_lvl1(b'\0\0\0\0\0\0') +
+            self._forge.cmd_change_pass_lvl2(b'\0\0\0\0\0\0') +
+            self._forge.cmd_limit_speed(8192, -8192)
+        )
         self._cartx.usePrivilegeLevel(1, b'\0\0\0\0\0\0')
 
     def process(self):
@@ -69,6 +81,11 @@ if __name__ == '__main__':
 
     cockpit = Cockpit(joy, car)
 
-    while True:
-        time.sleep(0.05)
-        cockpit.process()
+    try:
+        while True:
+            time.sleep(0.05)
+            cockpit.process()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cockpit.release()
