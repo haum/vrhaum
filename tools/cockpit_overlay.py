@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys, time
 from math import pi, atan2
 from pyglet.math import Mat4, Vec3, Vec4
 
@@ -13,11 +14,24 @@ if __name__ == '__main__':
     detector = CarDetector()
     detector.start()
 
-    print('\nChoose your car.')
-    car_info = detector.choose_car()
-    if not car_info:
-        print('No car.')
-        car_info = {'ip': '', 'name': 'CarNode-NoCar'}
+    if len(sys.argv) > 1:
+        carname = sys.argv[1]
+        print('Searching ' + carname + '...')
+        found = False
+        while not found:
+            cars = detector.detected_cars()
+            for c in cars:
+                if cars[c]['name'] == carname:
+                    car_info = cars[c]
+                    found = True
+                    break
+            time.sleep(0.5)
+    else:
+        print('\nChoose your car.')
+        car_info = detector.choose_car()
+        if not car_info:
+            print('No car.')
+            car_info = {'ip': '', 'name': 'CarNode-NoCar'}
     car_ip = car_info['ip']
 
     import pyglet
