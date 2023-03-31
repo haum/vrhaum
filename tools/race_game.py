@@ -391,7 +391,7 @@ if __name__ == '__main__':
     detector = CarDetector()
     detector.start()
 
-    gm = GameManager(b'HACKING', 3)
+    gm = GameManager(b'HACKER', 2)
     gm.set_players(define_players(detector, gm))
     gm.start()
 
