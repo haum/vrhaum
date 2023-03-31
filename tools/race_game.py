@@ -374,7 +374,8 @@ class Player:
 
 
 def define_players(detector, gm):
-    nb_cars = choice_input(['One car', 'Two cars', 'Three cars', 'Four cars'], 'How many cars?')
+    nb_cars = choice_input(['One car', 'Two cars', 'Three cars', 'Four cars', 'No cars'], 'How many cars?')
+    if nb_cars == 5: nb_cars = 0
     players = []
     for i in range(nb_cars):
         print('\nCar n°'+str(i+1))
